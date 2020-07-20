@@ -15,7 +15,7 @@ class Dashboard extends Component {
 
     render() {
 
-        const {projects, auth} = this.props;
+        const {projects, auth, notifications} = this.props;
         if (!auth.uid) {
             return <Redirect to="/signin"/>
         }
@@ -28,7 +28,7 @@ class Dashboard extends Component {
                     </div>
                     <div className="col s12 m5 offset-m1">
                         {/*    For the Notifications*/}
-                        <Notifications/>
+                        <Notifications notifications={notifications}/>
                     </div>
 
                 </div>
@@ -44,7 +44,9 @@ const mapStateToProps = (state) => {
         // project is the property name in the combinedReducers in RootReducer Function Decleration.
         // grab them from the Firestore.
         projects: state.firestore.ordered.projects,
-        auth: state.firebase.auth
+        auth: state.firebase.auth,
+        // attach notifications to props
+        notifications: state.firestore.ordered.notifications
     }
 }
 
@@ -52,8 +54,7 @@ const mapStateToProps = (state) => {
 export default compose(
     connect(mapStateToProps),
     firestoreConnect([
-        {
-            collection: 'projects'
-        }
+        {collection: 'projects', orderBy: ['createdAt', 'desc']},
+        {collection: 'notifications', limit: 3, orderBy: ['time', 'desc']}
     ])
 )(Dashboard);
